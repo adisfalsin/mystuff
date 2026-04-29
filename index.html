@@ -548,90 +548,27 @@
 
 <script>
   /* ═══════════════════════════════════════════════════
-     FILES LIST — Edit this array to add your files!
-     
-     Each file has:
-       type  : "audio" | "video" | "pdf"
-       title : Display name
-       desc  : Short description
-       file  : Path relative to index.html
-       size  : Display string e.g. "3.2 MB"
-       date  : Any string
+     FILES are loaded automatically from files.json!
+     To add a new file:
+       1. Upload the file to GitHub
+       2. Add one entry to files.json
+     That's it — no need to touch index.html!
   ═══════════════════════════════════════════════════ */
-  const FILES = [
-    {
-      type: "audio",
-      title: "Intro Podcast Episode",
-      desc: "Welcome episode — who I am and what this vault is about.",
-      file: "audio/intro-podcast.mp3",
-      size: "24 MB",
-      date: "2024-01"
-    },
-    {
-      type: "audio",
-      title: "Ambient Study Mix",
-      desc: "A 45-minute lo-fi mix for focus and deep work.",
-      file: "audio/ambient-study-mix.mp3",
-      size: "62 MB",
-      date: "2024-02"
-    },
-    {
-      type: "audio",
-      title: "Interview — Creative Process",
-      desc: "A conversation about creativity, ideas, and getting things done.",
-      file: "audio/interview-creative.mp3",
-      size: "41 MB",
-      date: "2024-03"
-    },
-    {
-      type: "video",
-      title: "Project Walkthrough",
-      desc: "A screen recording showing the full build process from scratch.",
-      file: "video/project-walkthrough.mp4",
-      size: "210 MB",
-      date: "2024-01"
-    },
-    {
-      type: "video",
-      title: "Short Film — Golden Hour",
-      desc: "A cinematic short shot during a road trip across the Peaks.",
-      file: "video/golden-hour-short.mp4",
-      size: "480 MB",
-      date: "2024-02"
-    },
-    {
-      type: "video",
-      title: "Tutorial: CSS Grid",
-      desc: "Everything you need to know about CSS Grid in under 20 minutes.",
-      file: "video/css-grid-tutorial.mp4",
-      size: "95 MB",
-      date: "2024-03"
-    },
-    {
-      type: "pdf",
-      title: "Design Systems Guide",
-      desc: "A comprehensive reference on building scalable design systems.",
-      file: "pdf/design-systems-guide.pdf",
-      size: "4.1 MB",
-      date: "2024-01"
-    },
-    {
-      type: "pdf",
-      title: "2024 Reading List",
-      desc: "Books I read (and recommend) this year with short notes.",
-      file: "pdf/reading-list-2024.pdf",
-      size: "0.8 MB",
-      date: "2024-12"
-    },
-    {
-      type: "pdf",
-      title: "Photography Cheatsheet",
-      desc: "Quick reference for exposure, composition, and lighting.",
-      file: "pdf/photography-cheatsheet.pdf",
-      size: "2.3 MB",
-      date: "2024-05"
+  let FILES = [];
+
+  async function loadFiles() {
+    try {
+      const res = await fetch('files.json?nocache=' + Date.now());
+      FILES = await res.json();
+    } catch(e) {
+      FILES = [];
+      document.getElementById('empty-state').innerHTML =
+        '<p style="font-size:2rem;margin-bottom:0.5rem">⚠️</p><p>Could not load files.json</p>';
+      document.getElementById('empty-state').classList.add('visible');
     }
-  ];
+    renderStats();
+    renderCards();
+  }
 
   /* ═══ RENDER ═══ */
   let activeFilter = 'all';
@@ -756,8 +693,7 @@
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
   /* ═══ INIT ═══ */
-  renderStats();
-  renderCards();
+  loadFiles();
 </script>
 </body>
 </html>
