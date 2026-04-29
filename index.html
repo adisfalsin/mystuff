@@ -10,19 +10,19 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg: #0a0a0f;
-      --surface: #111118;
-      --card: #16161f;
-      --border: rgba(255,255,255,0.07);
-      --border-hover: rgba(255,255,255,0.15);
-      --text: #f0f0f5;
-      --muted: #7a7a9a;
-      --accent: #7c6bff;
-      --accent2: #ff6b9d;
-      --accent3: #6bffd4;
-      --audio-color: #ff6b9d;
-      --video-color: #7c6bff;
-      --pdf-color: #6bffd4;
+      --bg: #f5f4f0;
+      --surface: #ffffff;
+      --card: #ffffff;
+      --border: rgba(0,0,0,0.08);
+      --border-hover: rgba(0,0,0,0.18);
+      --text: #1a1a2e;
+      --muted: #888899;
+      --accent: #5b4de8;
+      --accent2: #e8386d;
+      --accent3: #00a878;
+      --audio-color: #e8386d;
+      --video-color: #5b4de8;
+      --pdf-color: #00a878;
     }
 
     body {
@@ -42,7 +42,7 @@
       left: -20%;
       width: 70%;
       height: 70%;
-      background: radial-gradient(ellipse, rgba(124,107,255,0.08) 0%, transparent 70%);
+      background: radial-gradient(ellipse, rgba(91,77,232,0.06) 0%, transparent 70%);
       pointer-events: none;
       z-index: 0;
     }
@@ -53,7 +53,7 @@
       right: -10%;
       width: 50%;
       height: 50%;
-      background: radial-gradient(ellipse, rgba(107,255,212,0.05) 0%, transparent 70%);
+      background: radial-gradient(ellipse, rgba(0,168,120,0.05) 0%, transparent 70%);
       pointer-events: none;
       z-index: 0;
     }
@@ -218,9 +218,9 @@
       position: relative;
       overflow: hidden;
     }
-    .card-thumb-audio  { background: linear-gradient(135deg, #1a0f18, #2a1025); }
-    .card-thumb-video  { background: linear-gradient(135deg, #0f0f25, #1a1040); }
-    .card-thumb-pdf    { background: linear-gradient(135deg, #0a1f1a, #0f2520); }
+    .card-thumb-audio  { background: linear-gradient(135deg, #fde8ef, #fac8d8); }
+    .card-thumb-video  { background: linear-gradient(135deg, #ece9fb, #d5cffa); }
+    .card-thumb-pdf    { background: linear-gradient(135deg, #e0f5ef, #c0ead9); }
 
     .thumb-icon {
       font-size: 2.5rem;
@@ -239,7 +239,6 @@
       width: 3px;
       border-radius: 2px;
       background: var(--audio-color);
-      opacity: 0.7;
       animation: wave 1.2s ease-in-out infinite;
     }
     .waveform span:nth-child(1)  { height: 20px; animation-delay: 0s; }
@@ -261,8 +260,8 @@
     .play-btn {
       width: 54px; height: 54px;
       border-radius: 50%;
-      background: rgba(124,107,255,0.2);
-      border: 1.5px solid rgba(124,107,255,0.5);
+      background: rgba(91,77,232,0.15);
+      border: 1.5px solid rgba(91,77,232,0.4);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -270,15 +269,15 @@
     }
     .play-btn svg { width: 22px; height: 22px; fill: var(--accent); margin-left: 3px; }
     .media-card:hover .play-btn {
-      background: rgba(124,107,255,0.35);
+      background: rgba(91,77,232,0.25);
       border-color: var(--accent);
     }
 
     /* PDF icon */
     .pdf-icon {
       width: 54px; height: 66px;
-      background: rgba(107,255,212,0.1);
-      border: 1.5px solid rgba(107,255,212,0.3);
+      background: rgba(0,168,120,0.12);
+      border: 1.5px solid rgba(0,168,120,0.35);
       border-radius: 8px;
       display: flex;
       flex-direction: column;
@@ -305,9 +304,9 @@
       padding: 3px 8px;
       border-radius: 100px;
     }
-    .badge-audio { background: rgba(255,107,157,0.15); color: var(--audio-color); border: 1px solid rgba(255,107,157,0.3); }
-    .badge-video { background: rgba(124,107,255,0.15); color: var(--video-color); border: 1px solid rgba(124,107,255,0.3); }
-    .badge-pdf   { background: rgba(107,255,212,0.1);  color: var(--pdf-color);   border: 1px solid rgba(107,255,212,0.25); }
+    .badge-audio { background: rgba(232,56,109,0.1);  color: var(--audio-color); border: 1px solid rgba(232,56,109,0.25); }
+    .badge-video { background: rgba(91,77,232,0.1);   color: var(--video-color); border: 1px solid rgba(91,77,232,0.25); }
+    .badge-pdf   { background: rgba(0,168,120,0.1);   color: var(--pdf-color);   border: 1px solid rgba(0,168,120,0.25); }
 
     .card-body {
       padding: 1rem 1.1rem 1.1rem;
@@ -396,7 +395,7 @@
     .modal-overlay.open { display: flex; }
 
     .modal {
-      background: var(--surface);
+      background: #ffffff;
       border: 1px solid var(--border-hover);
       border-radius: 20px;
       width: 100%;
@@ -462,7 +461,7 @@
     }
     #search {
       width: 100%;
-      background: var(--card);
+      background: #ffffff;
       border: 1px solid var(--border);
       color: var(--text);
       padding: 0.5rem 1rem 0.5rem 2.5rem;
