@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Media Vault</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0a0f;
+      --surface: #111118;
+      --card: #16161f;
+      --border: rgba(255,255,255,0.07);
+      --border-hover: rgba(255,255,255,0.15);
+      --text: #f0f0f5;
+      --muted: #7a7a9a;
+      --accent: #7c6bff;
+      --accent2: #ff6b9d;
+      --accent3: #6bffd4;
+      --audio-color: #ff6b9d;
+      --video-color: #7c6bff;
+      --pdf-color: #6bffd4;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── BACKGROUND EFFECT ── */
+    body::before {
+      content: '';
+      position: fixed;
+      top: -30%;
+      left: -20%;
+      width: 70%;
+      height: 70%;
+      background: radial-gradient(ellipse, rgba(124,107,255,0.08) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    body::after {
+      content: '';
+      position: fixed;
+      bottom: -20%;
+      right: -10%;
+      width: 50%;
+      height: 50%;
+      background: radial-gradient(ellipse, rgba(107,255,212,0.05) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── HEADER ── */
+    header {
+      position: relative;
+      z-index: 10;
+      padding: 3rem 2rem 2rem;
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .site-title {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2.4rem, 6vw, 4rem);
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: -0.03em;
+    }
+    .site-title span {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .site-desc {
+      color: var(--muted);
+      font-size: 0.95rem;
+      margin-top: 0.5rem;
+      max-width: 320px;
+      line-height: 1.6;
+    }
+
+    .stats-bar {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .stat {
+      text-align: right;
+    }
+    .stat-num {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 700;
+      line-height: 1;
+    }
+    .stat-label {
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    /* ── FILTER TABS ── */
+    .filter-bar {
+      position: relative;
+      z-index: 10;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 2rem 2.5rem;
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 0.5rem 1.25rem;
+      border-radius: 100px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 400;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .filter-btn:hover {
+      border-color: var(--border-hover);
+      color: var(--text);
+    }
+    .filter-btn.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+    .filter-btn[data-type="audio"].active { background: var(--audio-color); border-color: var(--audio-color); }
+    .filter-btn[data-type="video"].active { background: var(--video-color); border-color: var(--video-color); }
+    .filter-btn[data-type="pdf"].active   { background: var(--pdf-color);   border-color: var(--pdf-color); color: #0a0a0f; }
+
+    .dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      display: inline-block;
+      flex-shrink: 0;
+    }
+
+    /* ── GRID ── */
+    .grid-section {
+      position: relative;
+      z-index: 10;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 2rem 4rem;
+    }
+
+    .section-heading {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 1rem;
+    }
+
+    .media-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1rem;
+    }
+
+    /* ── MEDIA CARD ── */
+    .media-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      transition: all 0.25s;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      animation: fadeUp 0.4s ease both;
+    }
+    .media-card:hover {
+      border-color: var(--border-hover);
+      transform: translateY(-2px);
+    }
+    .media-card.hidden { display: none; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .card-thumb {
+      height: 140px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .card-thumb-audio  { background: linear-gradient(135deg, #1a0f18, #2a1025); }
+    .card-thumb-video  { background: linear-gradient(135deg, #0f0f25, #1a1040); }
+    .card-thumb-pdf    { background: linear-gradient(135deg, #0a1f1a, #0f2520); }
+
+    .thumb-icon {
+      font-size: 2.5rem;
+      opacity: 0.7;
+    }
+
+    /* Waveform animation for audio */
+    .waveform {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      height: 50px;
+    }
+    .waveform span {
+      display: block;
+      width: 3px;
+      border-radius: 2px;
+      background: var(--audio-color);
+      opacity: 0.7;
+      animation: wave 1.2s ease-in-out infinite;
+    }
+    .waveform span:nth-child(1)  { height: 20px; animation-delay: 0s; }
+    .waveform span:nth-child(2)  { height: 35px; animation-delay: 0.1s; }
+    .waveform span:nth-child(3)  { height: 50px; animation-delay: 0.2s; }
+    .waveform span:nth-child(4)  { height: 28px; animation-delay: 0.3s; }
+    .waveform span:nth-child(5)  { height: 45px; animation-delay: 0.15s; }
+    .waveform span:nth-child(6)  { height: 18px; animation-delay: 0.25s; }
+    .waveform span:nth-child(7)  { height: 38px; animation-delay: 0.05s; }
+    .waveform span:nth-child(8)  { height: 55px; animation-delay: 0.35s; }
+    .waveform span:nth-child(9)  { height: 25px; animation-delay: 0.1s; }
+    .waveform span:nth-child(10) { height: 40px; animation-delay: 0.2s; }
+    @keyframes wave {
+      0%, 100% { transform: scaleY(0.5); }
+      50%       { transform: scaleY(1.1); }
+    }
+
+    /* Play button for video */
+    .play-btn {
+      width: 54px; height: 54px;
+      border-radius: 50%;
+      background: rgba(124,107,255,0.2);
+      border: 1.5px solid rgba(124,107,255,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+    .play-btn svg { width: 22px; height: 22px; fill: var(--accent); margin-left: 3px; }
+    .media-card:hover .play-btn {
+      background: rgba(124,107,255,0.35);
+      border-color: var(--accent);
+    }
+
+    /* PDF icon */
+    .pdf-icon {
+      width: 54px; height: 66px;
+      background: rgba(107,255,212,0.1);
+      border: 1.5px solid rgba(107,255,212,0.3);
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      font-family: 'Syne', sans-serif;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--pdf-color);
+      letter-spacing: 0.05em;
+    }
+    .pdf-icon svg { width: 18px; height: 18px; fill: var(--pdf-color); }
+
+    /* Type badge on thumb */
+    .type-badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 0.65rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 100px;
+    }
+    .badge-audio { background: rgba(255,107,157,0.15); color: var(--audio-color); border: 1px solid rgba(255,107,157,0.3); }
+    .badge-video { background: rgba(124,107,255,0.15); color: var(--video-color); border: 1px solid rgba(124,107,255,0.3); }
+    .badge-pdf   { background: rgba(107,255,212,0.1);  color: var(--pdf-color);   border: 1px solid rgba(107,255,212,0.25); }
+
+    .card-body {
+      padding: 1rem 1.1rem 1.1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+      flex: 1;
+    }
+
+    .card-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      line-height: 1.3;
+      color: var(--text);
+    }
+
+    .card-desc {
+      font-size: 0.8rem;
+      color: var(--muted);
+      line-height: 1.5;
+      flex: 1;
+    }
+
+    .card-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 0.6rem;
+    }
+
+    .card-size {
+      font-size: 0.72rem;
+      color: var(--muted);
+    }
+
+    .card-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-size: 0.78rem;
+      font-weight: 500;
+      text-decoration: none;
+      padding: 0.35rem 0.75rem;
+      border-radius: 100px;
+      border: 1px solid var(--border);
+      color: var(--text);
+      transition: all 0.2s;
+    }
+    .card-link:hover { background: rgba(255,255,255,0.05); border-color: var(--border-hover); }
+    .card-link svg { width: 12px; height: 12px; }
+
+    /* ── EMPTY STATE ── */
+    .empty-state {
+      display: none;
+      text-align: center;
+      padding: 4rem 2rem;
+      color: var(--muted);
+    }
+    .empty-state.visible { display: block; }
+
+    /* ── FOOTER ── */
+    footer {
+      position: relative;
+      z-index: 10;
+      text-align: center;
+      padding: 2rem;
+      color: var(--muted);
+      font-size: 0.78rem;
+      border-top: 1px solid var(--border);
+    }
+    footer a { color: var(--muted); text-decoration: none; }
+    footer a:hover { color: var(--text); }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+    .modal-overlay.open { display: flex; }
+
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border-hover);
+      border-radius: 20px;
+      width: 100%;
+      max-width: 660px;
+      overflow: hidden;
+      animation: modalIn 0.25s ease;
+    }
+    @keyframes modalIn {
+      from { opacity: 0; transform: scale(0.96) translateY(10px); }
+      to   { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .modal-header {
+      padding: 1.5rem 1.5rem 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+    .modal-title { font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 700; }
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 1.4rem;
+      line-height: 1;
+      padding: 0.2rem;
+      transition: color 0.15s;
+    }
+    .modal-close:hover { color: var(--text); }
+
+    .modal-body { padding: 0 1.5rem 1.5rem; }
+
+    audio, video {
+      width: 100%;
+      border-radius: 8px;
+      outline: none;
+    }
+    video { max-height: 360px; background: #000; }
+
+    .pdf-embed {
+      width: 100%;
+      height: 480px;
+      border: none;
+      border-radius: 8px;
+      display: block;
+    }
+
+    /* ── SEARCH ── */
+    .search-wrap {
+      position: relative;
+      max-width: 320px;
+    }
+    .search-wrap svg {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 16px;
+      height: 16px;
+      fill: var(--muted);
+      pointer-events: none;
+    }
+    #search {
+      width: 100%;
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.5rem 1rem 0.5rem 2.5rem;
+      border-radius: 100px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.85rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    #search::placeholder { color: var(--muted); }
+    #search:focus { border-color: var(--accent); }
+
+    @media (max-width: 600px) {
+      header { padding: 2rem 1.25rem 1.5rem; }
+      .filter-bar, .grid-section { padding-left: 1.25rem; padding-right: 1.25rem; }
+      .stats-bar { gap: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══ HEADER ═══ -->
+<header>
+  <div>
+    <h1 class="site-title">My <span>Vault</span></h1>
+    <p class="site-desc">A collection of audio, video & documents — all in one place.</p>
+  </div>
+  <div style="display:flex; flex-direction:column; align-items:flex-end; gap:1.2rem;">
+    <div class="search-wrap">
+      <svg viewBox="0 0 24 24"><path d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+      <input type="text" id="search" placeholder="Search files…" />
+    </div>
+    <div class="stats-bar" id="stats-bar">
+      <!-- filled by JS -->
+    </div>
+  </div>
+</header>
+
+<!-- ═══ FILTER TABS ═══ -->
+<div class="filter-bar">
+  <button class="filter-btn active" data-type="all" onclick="filter('all')">
+    <span class="dot" style="background:#fff"></span> All
+  </button>
+  <button class="filter-btn" data-type="audio" onclick="filter('audio')">
+    <span class="dot" style="background:var(--audio-color)"></span> Audio
+  </button>
+  <button class="filter-btn" data-type="video" onclick="filter('video')">
+    <span class="dot" style="background:var(--video-color)"></span> Video
+  </button>
+  <button class="filter-btn" data-type="pdf" onclick="filter('pdf')">
+    <span class="dot" style="background:var(--pdf-color)"></span> PDF
+  </button>
+</div>
+
+<!-- ═══ GRID ═══ -->
+<section class="grid-section">
+  <p class="section-heading" id="grid-label">All Files</p>
+  <div class="media-grid" id="media-grid">
+    <!-- cards injected by JS -->
+  </div>
+  <div class="empty-state" id="empty-state">
+    <p style="font-size:2rem; margin-bottom:0.5rem;">🔍</p>
+    <p>No files found.</p>
+  </div>
+</section>
+
+<!-- ═══ MODAL ═══ -->
+<div class="modal-overlay" id="modal" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <p class="modal-title" id="modal-title"></p>
+        <p style="font-size:0.8rem; color:var(--muted); margin-top:0.2rem;" id="modal-desc"></p>
+      </div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<footer>
+  Built with plain HTML &mdash; hosted on <a href="https://pages.github.com" target="_blank">GitHub Pages</a>
+</footer>
+
+<script>
+  /* ═══════════════════════════════════════════════════
+     FILES LIST — Edit this array to add your files!
+     
+     Each file has:
+       type  : "audio" | "video" | "pdf"
+       title : Display name
+       desc  : Short description
+       file  : Path relative to index.html
+       size  : Display string e.g. "3.2 MB"
+       date  : Any string
+  ═══════════════════════════════════════════════════ */
+  const FILES = [
+    {
+      type: "audio",
+      title: "Intro Podcast Episode",
+      desc: "Welcome episode — who I am and what this vault is about.",
+      file: "audio/intro-podcast.mp3",
+      size: "24 MB",
+      date: "2024-01"
+    },
+    {
+      type: "audio",
+      title: "Ambient Study Mix",
+      desc: "A 45-minute lo-fi mix for focus and deep work.",
+      file: "audio/ambient-study-mix.mp3",
+      size: "62 MB",
+      date: "2024-02"
+    },
+    {
+      type: "audio",
+      title: "Interview — Creative Process",
+      desc: "A conversation about creativity, ideas, and getting things done.",
+      file: "audio/interview-creative.mp3",
+      size: "41 MB",
+      date: "2024-03"
+    },
+    {
+      type: "video",
+      title: "Project Walkthrough",
+      desc: "A screen recording showing the full build process from scratch.",
+      file: "video/project-walkthrough.mp4",
+      size: "210 MB",
+      date: "2024-01"
+    },
+    {
+      type: "video",
+      title: "Short Film — Golden Hour",
+      desc: "A cinematic short shot during a road trip across the Peaks.",
+      file: "video/golden-hour-short.mp4",
+      size: "480 MB",
+      date: "2024-02"
+    },
+    {
+      type: "video",
+      title: "Tutorial: CSS Grid",
+      desc: "Everything you need to know about CSS Grid in under 20 minutes.",
+      file: "video/css-grid-tutorial.mp4",
+      size: "95 MB",
+      date: "2024-03"
+    },
+    {
+      type: "pdf",
+      title: "Design Systems Guide",
+      desc: "A comprehensive reference on building scalable design systems.",
+      file: "pdf/design-systems-guide.pdf",
+      size: "4.1 MB",
+      date: "2024-01"
+    },
+    {
+      type: "pdf",
+      title: "2024 Reading List",
+      desc: "Books I read (and recommend) this year with short notes.",
+      file: "pdf/reading-list-2024.pdf",
+      size: "0.8 MB",
+      date: "2024-12"
+    },
+    {
+      type: "pdf",
+      title: "Photography Cheatsheet",
+      desc: "Quick reference for exposure, composition, and lighting.",
+      file: "pdf/photography-cheatsheet.pdf",
+      size: "2.3 MB",
+      date: "2024-05"
+    }
+  ];
+
+  /* ═══ RENDER ═══ */
+  let activeFilter = 'all';
+  let searchQuery  = '';
+
+  function thumbHTML(type) {
+    if (type === 'audio') return `
+      <div class="waveform">
+        ${Array.from({length:10}, () => '<span></span>').join('')}
+      </div>`;
+    if (type === 'video') return `
+      <div class="play-btn">
+        <svg viewBox="0 0 24 24"><path d="M5 3l14 9-14 9V3z"/></svg>
+      </div>`;
+    return `
+      <div class="pdf-icon">
+        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"/><polyline points="14 2 14 8 20 8"/></svg>
+        PDF
+      </div>`;
+  }
+
+  function renderCards() {
+    const grid  = document.getElementById('media-grid');
+    const empty = document.getElementById('empty-state');
+    const label = document.getElementById('grid-label');
+    const q     = searchQuery.toLowerCase();
+
+    const visible = FILES.filter(f => {
+      const matchType = activeFilter === 'all' || f.type === activeFilter;
+      const matchQ    = !q || f.title.toLowerCase().includes(q) || f.desc.toLowerCase().includes(q);
+      return matchType && matchQ;
+    });
+
+    label.textContent = activeFilter === 'all' ? 'All Files'
+                      : activeFilter.charAt(0).toUpperCase() + activeFilter.slice(1) + ' Files';
+
+    grid.innerHTML = visible.map((f, i) => `
+      <div class="media-card" data-type="${f.type}" style="animation-delay:${i * 0.04}s"
+           onclick="openModal(${FILES.indexOf(f)})">
+        <div class="card-thumb card-thumb-${f.type}">
+          ${thumbHTML(f.type)}
+          <span class="type-badge badge-${f.type}">${f.type}</span>
+        </div>
+        <div class="card-body">
+          <p class="card-title">${f.title}</p>
+          <p class="card-desc">${f.desc}</p>
+          <div class="card-meta">
+            <span class="card-size">${f.size} &middot; ${f.date}</span>
+            <a class="card-link" href="${f.file}" download onclick="event.stopPropagation()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Download
+            </a>
+          </div>
+        </div>
+      </div>
+    `).join('');
+
+    empty.classList.toggle('visible', visible.length === 0);
+  }
+
+  function renderStats() {
+    const counts = FILES.reduce((acc, f) => { acc[f.type] = (acc[f.type]||0)+1; return acc; }, {});
+    document.getElementById('stats-bar').innerHTML = [
+      { type:'audio', color:'var(--audio-color)', label:'Audio' },
+      { type:'video', color:'var(--video-color)', label:'Video' },
+      { type:'pdf',   color:'var(--pdf-color)',   label:'PDFs'  }
+    ].map(s => `
+      <div class="stat">
+        <div class="stat-num" style="color:${s.color}">${counts[s.type]||0}</div>
+        <div class="stat-label">${s.label}</div>
+      </div>
+    `).join('');
+  }
+
+  function filter(type) {
+    activeFilter = type;
+    document.querySelectorAll('.filter-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.type === type);
+    });
+    renderCards();
+  }
+
+  document.getElementById('search').addEventListener('input', e => {
+    searchQuery = e.target.value;
+    renderCards();
+  });
+
+  /* ═══ MODAL ═══ */
+  function openModal(idx) {
+    const f = FILES[idx];
+    document.getElementById('modal-title').textContent = f.title;
+    document.getElementById('modal-desc').textContent  = f.desc;
+
+    let body = '';
+    if (f.type === 'audio') {
+      body = `<audio controls src="${f.file}">Your browser does not support audio.</audio>`;
+    } else if (f.type === 'video') {
+      body = `<video controls src="${f.file}">Your browser does not support video.</video>`;
+    } else {
+      body = `<iframe class="pdf-embed" src="${f.file}" title="${f.title}"></iframe>`;
+    }
+    body += `<div style="margin-top:1rem; display:flex; justify-content:flex-end;">
+      <a class="card-link" href="${f.file}" download style="font-size:0.85rem; padding:0.5rem 1.1rem;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download
+      </a>
+    </div>`;
+
+    document.getElementById('modal-body').innerHTML = body;
+    document.getElementById('modal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeModal(event) {
+    if (event && event.target !== document.getElementById('modal')) return;
+    const modal = document.getElementById('modal');
+    modal.classList.remove('open');
+    document.getElementById('modal-body').innerHTML = '';
+    document.body.style.overflow = '';
+  }
+
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+  /* ═══ INIT ═══ */
+  renderStats();
+  renderCards();
+</script>
+</body>
+</html>
